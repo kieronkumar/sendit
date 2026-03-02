@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#111418">
+<title>SendIt — Boulder Training Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #111418;
+  --surface: #191d24;
+  --surface2: #21262f;
+  --surface3: #2a3040;
+  --border: #2d3441;
+  --border2: #3a4255;
+  --chalk: #ede8df;
+  --chalk2: #a8a39a;
+  --chalk3: #5a5650;
+  --accent: #e8793a;
+  --accent-dim: rgba(232,121,58,0.15);
+  --climb: #4caf7d;
+  --climb-dim: rgba(76,175,125,0.12);
+  --hang: #e8793a;
+  --hang-dim: rgba(232,121,58,0.12);
+  --dumbbell: #7c6af0;
+  --dumbbell-dim: rgba(124,106,240,0.12);
+  --yoga: #38c5a8;
+  --yoga-dim: rgba(56,197,168,0.12);
+  --danger: #e05555;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Lora', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg);
+  color:var(--chalk);
+  font-family:var(--font-body);
+  font-size:14px;
+  display:flex;
+  flex-direction:column;
+  max-width:480px;
+  margin:0 auto;
+}
+
+/* SCROLLABLE MAIN */
+#page-container{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+
+/* HEADER */
+header{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+  position:relative;
+  z-index:50;
+}
+.logo{
+  font-family:var(--font-display);
+  font-size:26px;font-weight:800;
+  letter-spacing:3px;
+  color:var(--chalk);
+}
+.logo em{color:var(--accent);font-style:normal;}
+.header-right{display:flex;gap:8px;align-items:center;}
+.icon-btn{
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--chalk2);width:34px;height:34px;border-radius:8px;
+  cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;flex-shrink:0;
+}
+.icon-btn:hover{background:var(--surface3);color:var(--chalk);}
+.icon-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+
+/* BOTTOM NAV */
+nav{
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;
+  flex-shrink:0;
+}
+.nav-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 4px;cursor:pointer;
+  color:var(--chalk3);font-size:10px;font-family:var(--font-display);
+  letter-spacing:0.5px;font-weight:600;text-transform:uppercase;
+  transition:color 0.15s;border:none;background:none;gap:3px;
+}
+.nav-tab .tab-icon{font-size:18px;}
+.nav-tab.active{color:var(--accent);}
+
+/* PAGE */
+.page{display:none;padding-bottom:16px;}
+.page.active{display:block;}
+
+/* MONTH NAV */
+.month-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 8px;
+}
+.month-nav h2{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:1px;}
+.nav-btn{
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--chalk);width:32px;height:32px;border-radius:8px;
+  cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;
+  transition:background 0.15s;
+}
+.nav-btn:hover{background:var(--surface2);}
+
+/* LEGEND */
+.legend{display:flex;gap:10px;padding:4px 16px 10px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--chalk2);font-family:var(--font-display);font-weight:600;letter-spacing:0.3px;}
+.ldot{width:7px;height:7px;border-radius:50%;}
+
+/* STATS BAR */
+.stats-bar{display:flex;gap:0;padding:0 16px 12px;}
+.stat{
+  flex:1;background:var(--surface);border:1px solid var(--border);
+  padding:9px 6px;text-align:center;
+}
+.stat:first-child{border-radius:10px 0 0 10px;}
+.stat:last-child{border-radius:0 10px 10px 0;}
+.stat+.stat{border-left:none;}
+.stat-num{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--accent);line-height:1;}
+.stat-lbl{font-size:9px;color:var(--chalk2);font-family:var(--font-display);font-weight:600;letter-spacing:0.5px;margin-top:2px;text-transform:uppercase;}
+
+/* MONTH GRID */
+.calendar-grid{padding:0 10px 4px;}
+.day-headers{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
+.day-header{text-align:center;font-size:10px;color:var(--chalk3);font-family:var(--font-display);font-weight:700;letter-spacing:0.5px;padding:3px 0;}
+.month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.day-cell{
+  aspect-ratio:1;background:var(--surface);border-radius:8px;
+  border:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.15s;position:relative;min-height:40px;
+}
+.day-cell:hover{background:var(--surface2);}
+.day-cell.empty{background:none;border-color:transparent;cursor:default;}
+.day-cell.today{border-color:var(--accent);}
+.day-cell.flagged{border-color:var(--danger)!important;}
+.day-num{font-size:12px;font-weight:600;line-height:1;font-family:var(--font-display);}
+.day-cell.today .day-num{color:var(--accent);}
+.day-cell.other-month .day-num{color:var(--chalk3);}
+.wdot{width:5px;height:5px;border-radius:50%;margin-top:3px;}
+.logged-pip{position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:var(--chalk);opacity:0.6;}
+.flag-pip{position:absolute;top:3px;left:3px;width:5px;height:5px;border-radius:50%;background:var(--danger);}
+
+/* WEEK VIEW */
+.week-view{padding:0 12px 4px;display:flex;flex-direction:column;gap:6px;}
+.week-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px 14px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:all 0.15s;position:relative;overflow:hidden;
+}
+.week-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.week-card.type-climb::before{background:var(--climb);}
+.week-card.type-hang::before{background:var(--hang);}
+.week-card.type-dumbbell::before{background:var(--dumbbell);}
+.week-card.type-yoga::before{background:var(--yoga);}
+.week-card:hover{background:var(--surface2);}
+.week-card.today{border-color:var(--accent);}
+.week-card.flagged{border-color:var(--danger);}
+.wc-left{text-align:center;min-width:38px;}
+.wc-dayname{font-size:10px;color:var(--chalk2);font-family:var(--font-display);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
+.wc-daynum{font-family:var(--font-display);font-size:26px;font-weight:800;line-height:1;}
+.week-card.today .wc-daynum{color:var(--accent);}
+.wc-info{flex:1;}
+.wc-type{font-family:var(--font-display);font-size:15px;font-weight:700;letter-spacing:0.3px;}
+.wc-sub{font-size:11px;color:var(--chalk2);margin-top:1px;font-style:italic;}
+.wc-badge{
+  font-size:10px;font-family:var(--font-display);font-weight:600;letter-spacing:0.3px;
+  padding:3px 8px;border-radius:20px;
+}
+
+/* COLORS */
+.c-climb{color:var(--climb);}.c-hang{color:var(--hang);}.c-dumbbell{color:var(--dumbbell);}.c-yoga{color:var(--yoga);}.c-rest{color:var(--chalk3);}
+.bg-climb{background:var(--climb-dim);color:var(--climb);}
+.bg-hang{background:var(--hang-dim);color:var(--hang);}
+.bg-dumbbell{background:var(--dumbbell-dim);color:var(--dumbbell);}
+.bg-yoga{background:var(--yoga-dim);color:var(--yoga);}
+.dot-climb{background:var(--climb);}.dot-hang{background:var(--hang);}.dot-dumbbell{background:var(--dumbbell);}.dot-yoga{background:var(--yoga);}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.75);
+  z-index:200;display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.25s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{
+  background:var(--surface);border-radius:20px 20px 0 0;
+  width:100%;max-width:480px;max-height:92vh;overflow-y:auto;
+  transform:translateY(50px);
+  transition:transform 0.3s cubic-bezier(0.34,1.4,0.64,1);
+  border:1px solid var(--border);border-bottom:none;
+}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:10px auto 0;}
+.modal-hdr{
+  padding:14px 16px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;justify-content:space-between;
+}
+.modal-date-lbl{font-size:11px;color:var(--chalk2);font-family:var(--font-display);letter-spacing:0.5px;margin-bottom:3px;}
+.modal-title{font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:1px;display:flex;align-items:center;gap:8px;}
+.modal-close{
+  background:var(--surface2);border:1px solid var(--border);color:var(--chalk2);
+  width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+
+/* MODAL SECTIONS */
+.msec{padding:14px 16px;border-bottom:1px solid var(--border);}
+.msec:last-child{border-bottom:none;}
+.msec-title{
+  font-size:10px;font-family:var(--font-display);font-weight:700;
+  letter-spacing:1px;color:var(--chalk2);text-transform:uppercase;margin-bottom:10px;
+}
+.routine-block{background:var(--bg);border-radius:10px;padding:11px 13px;margin-bottom:8px;}
+.routine-block:last-child{margin-bottom:0;}
+.rb-title{font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:0.3px;margin-bottom:6px;}
+.rb-items{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.rb-items li{font-size:12px;color:var(--chalk2);display:flex;align-items:baseline;gap:6px;line-height:1.45;font-style:italic;}
+.rb-items li::before{content:'–';opacity:0.4;flex-shrink:0;}
+
+/* CHECKLIST */
+.check-item{
+  display:flex;align-items:center;gap:10px;background:var(--bg);
+  padding:10px 12px;border-radius:8px;cursor:pointer;transition:background 0.15s;margin-bottom:6px;
+}
+.check-item:last-child{margin-bottom:0;}
+.check-item:hover{background:var(--surface2);}
+.check-box{
+  width:18px;height:18px;border-radius:5px;border:2px solid var(--border2);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;font-size:10px;color:white;
+}
+.check-item.checked .check-box{border-color:var(--accent);background:var(--accent);}
+.check-label{font-size:13px;flex:1;}
+.check-item.checked .check-label{text-decoration:line-through;opacity:0.45;}
+
+/* WEIGHT INPUT ROW */
+.weight-row{
+  display:flex;align-items:center;gap:10px;background:var(--bg);
+  padding:9px 12px;border-radius:8px;margin-bottom:6px;
+}
+.weight-row:last-child{margin-bottom:0;}
+.wr-check{
+  width:18px;height:18px;border-radius:5px;border:2px solid var(--border2);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.15s;font-size:10px;color:white;
+}
+.weight-row.checked .wr-check{border-color:var(--accent);background:var(--accent);}
+.wr-label{font-size:12px;flex:1;font-style:italic;color:var(--chalk2);}
+.weight-row.checked .wr-label{text-decoration:line-through;opacity:0.45;}
+.wr-sets{font-size:11px;color:var(--chalk3);font-family:var(--font-mono);flex-shrink:0;}
+.wr-input-wrap{display:flex;align-items:center;gap:3px;flex-shrink:0;}
+.wr-input{
+  width:52px;background:var(--surface2);border:1px solid var(--border2);
+  border-radius:6px;color:var(--chalk);font-family:var(--font-mono);font-size:12px;
+  padding:4px 6px;text-align:center;outline:none;transition:border-color 0.15s;
+}
+.wr-input:focus{border-color:var(--chalk2);}
+.wr-unit{font-size:10px;color:var(--chalk3);font-family:var(--font-mono);}
+.plateau-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(224,85,85,0.15);color:var(--danger);
+  font-size:10px;font-family:var(--font-display);font-weight:700;
+  padding:2px 7px;border-radius:20px;margin-left:6px;
+}
+
+/* GRADE SELECTOR */
+.grade-grid{display:flex;flex-wrap:wrap;gap:5px;}
+.grade-btn{
+  background:var(--bg);border:1px solid var(--border2);
+  color:var(--chalk2);padding:5px 10px;border-radius:7px;
+  cursor:pointer;font-family:var(--font-display);font-size:13px;font-weight:700;
+  transition:all 0.15s;
+}
+.grade-btn:hover{background:var(--surface2);}
+.grade-btn.selected{background:var(--climb-dim);border-color:var(--climb);color:var(--climb);}
+
+/* NOTES */
+textarea{
+  width:100%;background:var(--bg);border:1px solid var(--border);
+  border-radius:10px;color:var(--chalk);font-family:var(--font-body);
+  font-size:13px;padding:11px;resize:none;height:80px;outline:none;
+  transition:border-color 0.2s;line-height:1.5;font-style:italic;
+}
+textarea:focus{border-color:var(--border2);}
+textarea::placeholder{color:var(--chalk3);}
+
+/* FLAG TOGGLE */
+.flag-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.flag-btn{
+  display:flex;align-items:center;gap:6px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:8px;padding:7px 12px;cursor:pointer;
+  font-size:12px;font-family:var(--font-display);font-weight:600;letter-spacing:0.3px;
+  color:var(--chalk2);transition:all 0.15s;
+}
+.flag-btn:hover{background:var(--surface2);}
+.flag-btn.flagged{background:rgba(224,85,85,0.12);border-color:var(--danger);color:var(--danger);}
+
+/* SAVE BTN */
+.save-btn{
+  width:100%;background:var(--accent);color:white;border:none;
+  border-radius:var(--radius);padding:13px;
+  font-family:var(--font-display);font-size:20px;font-weight:800;
+  letter-spacing:1.5px;cursor:pointer;transition:opacity 0.2s,transform 0.1s;
+  text-transform:uppercase;
+}
+.save-btn:hover{opacity:0.9;}
+.save-btn:active{transform:scale(0.98);}
+.saved-notice{text-align:center;font-size:11px;color:var(--climb);margin-top:8px;font-family:var(--font-display);font-weight:600;letter-spacing:0.5px;height:14px;}
+
+/* EDIT MODE */
+.edit-btn{
+  background:var(--surface2);border:1px solid var(--border);color:var(--chalk2);
+  padding:6px 12px;border-radius:8px;font-size:11px;font-family:var(--font-display);
+  font-weight:600;letter-spacing:0.5px;cursor:pointer;transition:all 0.15s;
+}
+.edit-btn:hover{background:var(--surface3);color:var(--chalk);}
+.edit-input{
+  background:var(--bg);border:1px solid var(--border2);border-radius:6px;
+  color:var(--chalk);font-family:var(--font-body);font-size:12px;
+  padding:5px 8px;width:100%;outline:none;font-style:italic;
+}
+.edit-input:focus{border-color:var(--chalk2);}
+
+/* STATS PAGE */
+.stats-page{padding:0 16px 16px;}
+.stats-section{margin-bottom:20px;}
+.stats-section h3{
+  font-family:var(--font-display);font-size:16px;font-weight:700;
+  letter-spacing:0.5px;margin-bottom:10px;color:var(--chalk2);text-transform:uppercase;
+}
+.exercise-chart{background:var(--surface);border-radius:var(--radius);padding:14px;margin-bottom:8px;border:1px solid var(--border);}
+.ec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.ec-name{font-family:var(--font-display);font-size:14px;font-weight:700;}
+.ec-latest{font-family:var(--font-mono);font-size:12px;color:var(--accent);}
+.sparkline-wrap{height:40px;position:relative;}
+canvas.sparkline{width:100%;height:40px;}
+.no-data{font-size:12px;color:var(--chalk3);font-style:italic;text-align:center;padding:8px 0;}
+
+/* MONTHLY SUMMARY */
+.summary-page{padding:0 16px 16px;}
+.summary-month-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0 12px;}
+.summary-month-nav h2{font-family:var(--font-display);font-size:20px;font-weight:700;}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.summary-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:12px;
+}
+.sc-label{font-size:10px;font-family:var(--font-display);font-weight:700;letter-spacing:0.5px;color:var(--chalk2);text-transform:uppercase;margin-bottom:6px;}
+.sc-nums{display:flex;align-items:baseline;gap:4px;}
+.sc-done{font-family:var(--font-display);font-size:28px;font-weight:800;line-height:1;}
+.sc-total{font-size:13px;color:var(--chalk2);}
+.sc-bar{height:4px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden;}
+.sc-bar-fill{height:100%;border-radius:2px;transition:width 0.5s;}
+.grade-sparkline-wrap{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;margin-bottom:16px;
+}
+.gs-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.gs-title{font-family:var(--font-display);font-size:14px;font-weight:700;letter-spacing:0.3px;}
+.gs-best{font-family:var(--font-mono);font-size:12px;color:var(--climb);}
+
+/* FLAGS PAGE */
+.flags-page{padding:0 16px 16px;}
+.flag-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:background 0.15s;
+}
+.flag-item:hover{background:var(--surface2);}
+.fi-date{font-size:11px;color:var(--chalk2);font-family:var(--font-display);font-weight:600;letter-spacing:0.3px;margin-bottom:3px;}
+.fi-type{font-family:var(--font-display);font-size:15px;font-weight:700;margin-bottom:4px;}
+.fi-notes{font-size:12px;color:var(--chalk2);font-style:italic;line-height:1.4;}
+.no-flags{text-align:center;padding:40px 20px;color:var(--chalk3);font-style:italic;}
+
+/* EXPORT BTN */
+.export-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--surface);border:1px solid var(--border);color:var(--chalk);
+  width:100%;padding:12px;border-radius:var(--radius);
+  font-family:var(--font-display);font-size:16px;font-weight:700;letter-spacing:0.5px;
+  cursor:pointer;transition:all 0.15s;margin-top:8px;
+}
+.export-btn:hover{background:var(--surface2);}
+
+/* COMBINED DAY (Saturday) */
+.combined-label{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--surface2);border-radius:20px;padding:3px 10px;
+  font-size:11px;font-family:var(--font-display);font-weight:600;letter-spacing:0.3px;
+  color:var(--chalk2);margin-bottom:12px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">SEND<em>IT</em></div>
+  <div class="header-right">
+    <button class="icon-btn" id="btn-month-view" title="Month view" onclick="setCalView('month')">▦</button>
+    <button class="icon-btn" id="btn-week-view" title="Week view" onclick="setCalView('week')">☰</button>
+  </div>
+</header>
+
+<div id="page-container">
+  <!-- CALENDAR PAGE -->
+  <div class="page active" id="page-calendar">
+    <div id="cal-content"></div>
+  </div>
+
+  <!-- STATS PAGE -->
+  <div class="page" id="page-stats">
+    <div class="stats-page" id="stats-content"></div>
+  </div>
+
+  <!-- SUMMARY PAGE -->
+  <div class="page" id="page-summary">
+    <div class="summary-page" id="summary-content"></div>
+  </div>
+
+  <!-- FLAGS PAGE -->
+  <div class="page" id="page-flags">
+    <div class="flags-page" id="flags-content"></div>
+  </div>
+</div>
+
+<nav>
+  <button class="nav-tab active" id="tab-calendar" onclick="showPage('calendar')">
+    <span class="tab-icon">📅</span>Calendar
+  </button>
+  <button class="nav-tab" id="tab-stats" onclick="showPage('stats')">
+    <span class="tab-icon">📈</span>Progress
+  </button>
+  <button class="nav-tab" id="tab-summary" onclick="showPage('summary')">
+    <span class="tab-icon">📊</span>Summary
+  </button>
+  <button class="nav-tab" id="tab-flags" onclick="showPage('flags')">
+    <span class="tab-icon">🚩</span>Flags
+  </button>
+</nav>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-date-lbl" id="modal-date"></div>
+        <div class="modal-title" id="modal-title"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div class="modal-overlay" id="import-overlay" onclick="if(event.target===this)closeImportModal()" style="z-index:210;">
+  <div class="modal" id="import-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-date-lbl">DATA MANAGEMENT</div>
+        <div class="modal-title" style="font-size:22px;">⬆ Import CSV</div>
+      </div>
+      <button class="modal-close" onclick="closeImportModal()">✕</button>
+    </div>
+    <div id="import-modal-body" style="padding:16px 16px 32px;"></div>
+  </div>
+</div>
+<input type="file" id="csv-import-input" accept=".csv" style="display:none" onchange="handleImportFile(this)">
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// WORKOUT DEFINITIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+const CLIMB_ROUTINE = [
+  { title: 'Warm-up', items: ['Easy traversing on low grades (10 mins)', 'Dynamic stretches — arm circles, hip swings', 'Finger warm-up — gentle crimping, tendon glides'] },
+  { title: 'Main Session', items: ['Project your limit grade (V4–V5)', 'Repeat problems 2 grades below for volume', 'Focus on footwork precision and hip positioning'] },
+  { title: 'Cool-down', items: ['Easy climbing or traversing (5 mins)', 'Forearm & finger stretches', 'Note any interesting problems in your log'] },
+];
+
+// A/B dumbbell routines
+const DUMBBELL_A = [
+  { name: 'Dumbbell chest press', sets: '3×10' },
+  { name: 'Dumbbell shoulder press', sets: '3×10' },
+  { name: 'Dumbbell rows', sets: '3×10 ea.' },
+  { name: 'Reverse wrist curls', sets: '3×15' },
+  { name: 'Lateral raises', sets: '3×12' },
+  { name: 'Tricep kickbacks', sets: '3×12' },
+  { name: 'Face pulls (band)', sets: '3×15' },
+];
+const DUMBBELL_B = [
+  { name: 'Dumbbell flyes', sets: '3×10' },
+  { name: 'Arnold press', sets: '3×10' },
+  { name: 'Rear delt flyes', sets: '3×12 ea.' },
+  { name: 'Reverse wrist curls', sets: '3×15' },
+  { name: 'Front raises', sets: '3×12' },
+  { name: 'Overhead tricep ext.', sets: '3×12' },
+  { name: 'Face pulls (band)', sets: '3×15' },
+];
+
+const WORKOUTS = {
+  climb: { label: 'Climbing', emoji: '🧗', type: 'climb', sub: 'Bouldering session at the gym' },
+  dumbbell: { label: 'Dumbbells', emoji: '🏋️', type: 'dumbbell', sub: 'Antagonist strength training' },
+  hangboard: { label: 'Hangboard', emoji: '🤙', type: 'hang', sub: 'Finger strength — detailed tracking in your hangboard app' },
+  yoga_full: { label: 'Yoga', emoji: '🧘', type: 'yoga', sub: 'Full flexibility & mobility session (~40 mins)' },
+  yoga_warmup: { label: 'Yoga + Hangboard', emoji: '🧘🤙', type: 'yoga', sub: 'Mobility warm-up (30 mins) then hangboard' },
+  rest: { label: 'Rest Day', emoji: '😴', type: 'rest', sub: 'Recovery is training too' },
+};
+
+const V_GRADES = ['VB','V0','V1','V2','V3','V4','V5','V6','V7','V8','V9','V10','V11','V12','V13','V14','V15','V16','V17'];
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAY_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCHEDULE
+// ─────────────────────────────────────────────────────────────────────────────
+
+function getWorkoutType(date) {
+  const dow = date.getDay();
+  const dom = date.getDate();
+  const week = Math.ceil(dom / 7);
+  if (dow === 1) return 'climb';
+  if (dow === 2) return (week === 1 || week === 3) ? 'climb' : 'dumbbell';
+  if (dow === 3) return 'yoga_full';
+  if (dow === 4) return 'climb';
+  if (dow === 5) return 'dumbbell';
+  if (dow === 6) return 'yoga_warmup';
+  if (dow === 0) return 'yoga_full';
+  return 'rest';
+}
+
+// Track which dumbbell session index we're on
+function getDumbbellVariant(date) {
+  // Count dumbbell sessions from epoch up to and including this date
+  // Simple approach: count all dumbbell days before this date
+  const key = dateKey(date);
+  let count = 0;
+  const d = new Date(2025, 0, 1);
+  while (dateKey(d) <= key) {
+    if (getWorkoutType(d) === 'dumbbell') count++;
+    d.setDate(d.getDate() + 1);
+  }
+  return count % 2 === 1 ? 'A' : 'B'; // 1st session = A, 2nd = B, etc.
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+
+const today = new Date();
+let calView = 'month';
+let viewYear = today.getFullYear();
+let viewMonth = today.getMonth();
+let viewWeekStart = getWeekStart(today);
+let summaryYear = today.getFullYear();
+let summaryMonth = today.getMonth();
+let currentPage = 'calendar';
+
+// logs[dateKey] = { type, checks:[], weights:{exerciseName: kg}, notes:'', grade:null, flagged:false }
+const logs = {};
+
+// customRoutines: allow editing per-variant
+// customDumbbellA / customDumbbellB — arrays of {name, sets}
+let customDumbbellA = JSON.parse(JSON.stringify(DUMBBELL_A));
+let customDumbbellB = JSON.parse(JSON.stringify(DUMBBELL_B));
+
+// Modal state
+let activeKey = null;
+let activeType = null;
+let activeChecks = [];
+let activeWeights = {};
+let activeGrade = null;
+let activeFlagged = false;
+let editingRoutine = false;
+
+function dateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function keyToDate(k) { return new Date(k + 'T12:00:00'); }
+function isToday(d) { return dateKey(d) === dateKey(today); }
+function getWeekStart(d) {
+  const date = new Date(d); date.setHours(0,0,0,0);
+  const day = date.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  date.setDate(date.getDate() + diff);
+  return date;
+}
+
+function isLogged(key) {
+  const l = logs[key];
+  if (!l) return false;
+  return l.notes?.trim() || l.checks?.some(Boolean) || l.grade != null || (l.weights && Object.values(l.weights).some(v => v));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PAGE ROUTING
+// ─────────────────────────────────────────────────────────────────────────────
+
+function showPage(p) {
+  currentPage = p;
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  document.getElementById('tab-' + p).classList.add('active');
+  document.getElementById('page-container').scrollTop = 0;
+  if (p === 'stats') renderStats();
+  else if (p === 'summary') renderSummary();
+  else if (p === 'flags') renderFlags();
+  else renderCalendar();
+}
+
+function setCalView(v) {
+  calView = v;
+  document.getElementById('btn-month-view').classList.toggle('active', v === 'month');
+  document.getElementById('btn-week-view').classList.toggle('active', v === 'week');
+  renderCalendar();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CALENDAR
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderCalendar() {
+  document.getElementById('cal-content').innerHTML = renderStatsBar() + (calView === 'month' ? renderMonth() : renderWeek());
+  document.getElementById('btn-month-view').classList.toggle('active', calView === 'month');
+  document.getElementById('btn-week-view').classList.toggle('active', calView === 'week');
+}
+
+function renderStatsBar() {
+  let total = 0, climbs = 0, streak = 0;
+  Object.keys(logs).forEach(k => {
+    if (isLogged(k)) {
+      total++;
+      const d = keyToDate(k);
+      if (getWorkoutType(d) === 'climb' && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear()) climbs++;
+    }
+  });
+  let sd = new Date(today); sd.setHours(0,0,0,0);
+  for (let i = 0; i < 365; i++) {
+    const wt = getWorkoutType(sd);
+    if (wt === 'rest') { sd.setDate(sd.getDate()-1); continue; }
+    if (isLogged(dateKey(sd))) { streak++; sd.setDate(sd.getDate()-1); } else break;
+  }
+  return `<div class="stats-bar">
+    <div class="stat"><div class="stat-num">${total}</div><div class="stat-lbl">Logged</div></div>
+    <div class="stat"><div class="stat-num">${climbs}</div><div class="stat-lbl">Climbs</div></div>
+    <div class="stat"><div class="stat-num">${streak}</div><div class="stat-lbl">Streak</div></div>
+  </div>`;
+}
+
+function renderMonth() {
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+  const offset = firstDay === 0 ? 6 : firstDay - 1;
+  let html = `<div class="month-nav">
+    <button class="nav-btn" onclick="prevMonth()">‹</button>
+    <h2>${MONTH_NAMES[viewMonth]} ${viewYear}</h2>
+    <button class="nav-btn" onclick="nextMonth()">›</button>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="ldot dot-climb"></div>Climb</div>
+    <div class="legend-item"><div class="ldot dot-hang"></div>Hang</div>
+    <div class="legend-item"><div class="ldot dot-dumbbell"></div>Weights</div>
+    <div class="legend-item"><div class="ldot dot-yoga"></div>Yoga</div>
+  </div>
+  <div class="calendar-grid">
+    <div class="day-headers">${['M','T','W','T','F','S','S'].map(d=>`<div class="day-header">${d}</div>`).join('')}</div>
+    <div class="month-grid">`;
+  for (let i = 0; i < offset; i++) html += `<div class="day-cell empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(viewYear, viewMonth, d);
+    const wt = getWorkoutType(date);
+    const k = dateKey(date);
+    const logged = isLogged(k);
+    const flagged = logs[k]?.flagged;
+    const typeClass = wt === 'rest' ? '' : (wt === 'yoga_full' || wt === 'yoga_warmup') ? 'yoga' : wt;
+    const dots = wt === 'yoga_warmup'
+      ? `<div style="display:flex;gap:2px;margin-top:3px;"><div class="wdot dot-yoga"></div><div class="wdot dot-hang"></div></div>`
+      : wt !== 'rest' ? `<div class="wdot dot-${typeClass}"></div>` : '';
+    html += `<div class="day-cell${isToday(date)?' today':''}${flagged?' flagged':''}" onclick="openDay('${k}')">
+      ${logged?'<div class="logged-pip"></div>':''}
+      ${flagged?'<div class="flag-pip"></div>':''}
+      <div class="day-num">${d}</div>
+      ${dots}
+    </div>`;
+  }
+  html += `</div></div>`;
+  return html;
+}
+
+function renderWeek() {
+  const ws = new Date(viewWeekStart);
+  const we = new Date(ws); we.setDate(we.getDate()+6);
+  const rangeLabel = `${ws.getDate()} ${MONTH_NAMES[ws.getMonth()].slice(0,3)} — ${we.getDate()} ${MONTH_NAMES[we.getMonth()].slice(0,3)} ${we.getFullYear()}`;
+  let html = `<div class="month-nav">
+    <button class="nav-btn" onclick="prevWeek()">‹</button>
+    <h2 style="font-size:15px;font-family:var(--font-display);font-weight:700;">${rangeLabel}</h2>
+    <button class="nav-btn" onclick="nextWeek()">›</button>
+  </div><div class="week-view">`;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(viewWeekStart); d.setDate(d.getDate()+i);
+    const wt = getWorkoutType(d);
+    const w = WORKOUTS[wt];
+    const k = dateKey(d);
+    const logged = isLogged(k);
+    const flagged = logs[k]?.flagged;
+    const typeClass = (wt==='yoga_full'||wt==='yoga_warmup') ? 'yoga' : wt==='rest' ? 'rest' : wt;
+    html += `<div class="week-card type-${typeClass}${isToday(d)?' today':''}${flagged?' flagged':''}" onclick="openDay('${k}')">
+      <div class="wc-left">
+        <div class="wc-dayname">${DAY_SHORT[i]}</div>
+        <div class="wc-daynum c-${typeClass}">${d.getDate()}</div>
+      </div>
+      <div class="wc-info">
+        <div class="wc-type c-${typeClass}">${w.emoji} ${w.label}</div>
+        <div class="wc-sub">${w.sub}</div>
+      </div>
+      <div class="wc-badge bg-${typeClass}">${logged?'✓ logged':typeClass}</div>
+    </div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function prevMonth(){viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--;}renderCalendar();}
+function nextMonth(){viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++;}renderCalendar();}
+function prevWeek(){viewWeekStart.setDate(viewWeekStart.getDate()-7);renderCalendar();}
+function nextWeek(){viewWeekStart.setDate(viewWeekStart.getDate()+7);renderCalendar();}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+
+function openDay(key) {
+  activeKey = key;
+  const date = keyToDate(key);
+  activeType = getWorkoutType(date);
+  const existing = logs[key] || {};
+  activeFlagged = existing.flagged || false;
+  activeGrade = existing.grade || null;
+  editingRoutine = false;
+
+  if (activeType === 'dumbbell') {
+    const variant = getDumbbellVariant(date);
+    const routine = variant === 'A' ? customDumbbellA : customDumbbellB;
+    activeChecks = existing.checks ? [...existing.checks] : new Array(routine.length).fill(false);
+    if (activeChecks.length < routine.length) activeChecks = [...activeChecks, ...new Array(routine.length - activeChecks.length).fill(false)];
+    // Pre-fill weights from last session of same variant
+    activeWeights = {};
+    routine.forEach(ex => {
+      activeWeights[ex.name] = existing.weights?.[ex.name] ?? getLastWeight(ex.name, key) ?? '';
+    });
+  } else if (activeType === 'climb') {
+    activeChecks = existing.checks ? [...existing.checks] : [false];
+  } else if (activeType === 'yoga_full' || activeType === 'yoga_warmup' || activeType === 'hangboard') {
+    activeChecks = existing.checks ? [...existing.checks] : [false];
+  } else if (activeType === 'yoga_warmup') {
+    // Saturday: yoga + hangboard - two checks
+    activeChecks = existing.checks ? [...existing.checks] : [false, false];
+  }
+
+  const w = WORKOUTS[activeType];
+  const dateLabel = `${DAY_NAMES[date.getDay()]}, ${date.getDate()} ${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
+  document.getElementById('modal-date').textContent = dateLabel;
+  document.getElementById('modal-title').innerHTML = `<span class="c-${(activeType==='yoga_full'||activeType==='yoga_warmup')?'yoga':activeType==='rest'?'rest':activeType}">${w.emoji}</span> ${w.label}`;
+
+  buildModalBody(existing);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function buildModalBody(existing) {
+  const w = WORKOUTS[activeType];
+  let html = '';
+
+  if (activeType === 'rest') {
+    html += `<div class="msec" style="text-align:center;color:var(--chalk2);font-style:italic;line-height:1.7;padding:20px 16px;">
+      🛋️ Rest day. Recovery is training too.<br>Let your fingers and tendons absorb the work.
+    </div>`;
+    html += buildNotesSection(existing);
+    html += buildSaveSection();
+    document.getElementById('modal-body').innerHTML = html;
+    return;
+  }
+
+  if (activeType === 'climb') {
+    // Routine
+    html += `<div class="msec"><div class="msec-title">Today's Routine</div>`;
+    CLIMB_ROUTINE.forEach(block => {
+      html += `<div class="routine-block"><div class="rb-title">${block.title}</div><ul class="rb-items">`;
+      block.items.forEach(item => { html += `<li>${item}</li>`; });
+      html += `</ul></div>`;
+    });
+    html += `</div>`;
+    // Log
+    html += `<div class="msec"><div class="msec-title">Log Session</div>`;
+    html += buildFlagRow();
+    const c = activeChecks[0] || false;
+    html += `<div class="check-item${c?' checked':''}" onclick="toggleCheck(0)">
+      <div class="check-box">${c?'✓':''}</div>
+      <div class="check-label">Session completed</div>
+    </div>`;
+    html += `<div style="margin-top:12px;"><div class="msec-title" style="margin-bottom:8px;">Highest Grade</div>
+      <div class="grade-grid">`;
+    V_GRADES.forEach(g => {
+      html += `<button class="grade-btn${activeGrade===g?' selected':''}" onclick="selectGrade('${g}')">${g}</button>`;
+    });
+    html += `</div></div></div>`;
+  }
+
+  else if (activeType === 'dumbbell') {
+    const date = keyToDate(activeKey);
+    const variant = getDumbbellVariant(date);
+    const routine = variant === 'A' ? customDumbbellA : customDumbbellB;
+    html += `<div class="msec">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="msec-title" style="margin-bottom:0;">Workout ${variant} — ${editingRoutine?'<span style="color:var(--accent)">Editing</span>':'Exercises'}</div>
+        <button class="edit-btn" onclick="toggleEditRoutine()">${editingRoutine?'Done editing':'Edit routine'}</button>
+      </div>`;
+    if (editingRoutine) {
+      routine.forEach((ex, i) => {
+        html += `<div class="weight-row" style="flex-wrap:wrap;gap:6px;">
+          <input class="edit-input" value="${ex.name}" onchange="editExerciseName(${i},'${variant}',this.value)" style="flex:1;min-width:120px;">
+          <input class="edit-input" value="${ex.sets}" onchange="editExerciseSets(${i},'${variant}',this.value)" style="width:70px;">
+        </div>`;
+      });
+    } else {
+      routine.forEach((ex, i) => {
+        const checked = activeChecks[i] || false;
+        const wval = activeWeights[ex.name] || '';
+        const plateau = checkPlateau(ex.name, activeKey, wval);
+        html += `<div class="weight-row${checked?' checked':''}">
+          <div class="wr-check" onclick="toggleWeightCheck(${i})">${checked?'✓':''}</div>
+          <div style="flex:1;min-width:0;">
+            <div class="wr-label">${ex.name}${plateau?`<span class="plateau-badge">⚠ plateau</span>`:''}</div>
+          </div>
+          <div class="wr-sets">${ex.sets}</div>
+          <div class="wr-input-wrap">
+            <input class="wr-input" type="number" min="0" step="0.5" value="${wval}" placeholder="0" id="w-${i}" oninput="updateWeight('${ex.name}',this.value)">
+            <span class="wr-unit">kg</span>
+          </div>
+        </div>`;
+      });
+    }
+    html += `</div>`;
+    html += `<div class="msec">${buildFlagRow()}</div>`;
+  }
+
+  else if (activeType === 'yoga_warmup') {
+    // Saturday: yoga warmup + hangboard
+    html += `<div class="msec">
+      <div class="combined-label">🧘 Mobility warm-up (30 mins) then 🤙 Hangboard</div>
+      <div class="msec-title">About this session</div>
+      <div style="font-size:13px;color:var(--chalk2);font-style:italic;line-height:1.65;">
+        Begin with a focused 30-minute mobility flow targeting upper body — thoracic spine, shoulder openers, wrist and forearm work.
+        This primes your connective tissue for the hangboard. Keep stretching dynamic rather than deep static holds before loading tendons.
+      </div>
+      <div style="margin-top:14px;">
+        <div class="check-item${activeChecks[0]?' checked':''}" onclick="toggleCheck(0)" style="margin-bottom:6px;">
+          <div class="check-box">${activeChecks[0]?'✓':''}</div>
+          <div class="check-label">Yoga warm-up completed</div>
+        </div>
+        <div class="check-item${activeChecks[1]?' checked':''}" onclick="toggleCheck(1)">
+          <div class="check-box">${activeChecks[1]?'✓':''}</div>
+          <div class="check-label">Hangboard session completed</div>
+        </div>
+      </div>
+    </div>`;
+    html += `<div class="msec">${buildFlagRow()}</div>`;
+  }
+
+  else if (activeType === 'yoga_full') {
+    html += `<div class="msec">
+      <div class="msec-title">About this session</div>
+      <div style="font-size:13px;color:var(--chalk2);font-style:italic;line-height:1.65;">
+        Full flexibility & mobility session (~40 mins). Focus on hips, hamstrings, and thoracic spine — these translate most directly to your climbing.
+        Pigeon pose, deep squat, forward folds, and thoracic bridge are your highest-value moves.
+      </div>
+      <div style="margin-top:14px;">
+        <div class="check-item${activeChecks[0]?' checked':''}" onclick="toggleCheck(0)">
+          <div class="check-box">${activeChecks[0]?'✓':''}</div>
+          <div class="check-label">Session completed</div>
+        </div>
+      </div>
+    </div>`;
+    html += `<div class="msec">${buildFlagRow()}</div>`;
+  }
+
+  else if (activeType === 'hangboard') {
+    html += `<div class="msec">
+      <div class="msec-title">About this session</div>
+      <div style="font-size:13px;color:var(--chalk2);font-style:italic;line-height:1.65;">
+        Detailed tracking is handled in your hangboard app. Remember: warm up fully before loading fingers. Stop immediately if you feel any sharp joint pain.
+      </div>
+      <div style="margin-top:14px;">
+        <div class="check-item${activeChecks[0]?' checked':''}" onclick="toggleCheck(0)">
+          <div class="check-box">${activeChecks[0]?'✓':''}</div>
+          <div class="check-label">Session completed</div>
+        </div>
+      </div>
+    </div>`;
+    html += `<div class="msec">${buildFlagRow()}</div>`;
+  }
+
+  html += buildNotesSection(existing);
+  html += buildSaveSection();
+  document.getElementById('modal-body').innerHTML = html;
+}
+
+function buildFlagRow() {
+  return `<div class="flag-row">
+    <button class="flag-btn${activeFlagged?' flagged':''}" id="flag-btn" onclick="toggleFlag()">
+      🚩 ${activeFlagged ? 'Flagged — niggle/injury' : 'Flag a niggle or injury'}
+    </button>
+  </div>`;
+}
+
+function buildNotesSection(existing) {
+  return `<div class="msec">
+    <div class="msec-title">Notes</div>
+    <textarea id="notes-input" placeholder="How did it go? Any observations, problems worked, feelings…">${existing?.notes||''}</textarea>
+  </div>`;
+}
+
+function buildSaveSection() {
+  return `<div class="msec">
+    <button class="save-btn" onclick="saveLog()">Save Log</button>
+    <div class="saved-notice" id="saved-notice"></div>
+  </div>`;
+}
+
+function toggleCheck(i) {
+  activeChecks[i] = !activeChecks[i];
+  const items = document.querySelectorAll('.check-item');
+  items[i].classList.toggle('checked', activeChecks[i]);
+  items[i].querySelector('.check-box').textContent = activeChecks[i] ? '✓' : '';
+}
+
+function toggleWeightCheck(i) {
+  activeChecks[i] = !activeChecks[i];
+  const rows = document.querySelectorAll('.weight-row');
+  rows[i].classList.toggle('checked', activeChecks[i]);
+  rows[i].querySelector('.wr-check').textContent = activeChecks[i] ? '✓' : '';
+}
+
+function updateWeight(name, val) { activeWeights[name] = val; }
+
+function selectGrade(g) {
+  activeGrade = g;
+  document.querySelectorAll('.grade-btn').forEach(b => b.classList.toggle('selected', b.textContent === g));
+}
+
+function toggleFlag() {
+  activeFlagged = !activeFlagged;
+  const btn = document.getElementById('flag-btn');
+  btn.classList.toggle('flagged', activeFlagged);
+  btn.textContent = (activeFlagged ? '🚩 Flagged — niggle/injury' : '🚩 Flag a niggle or injury');
+}
+
+function toggleEditRoutine() {
+  editingRoutine = !editingRoutine;
+  const existing = logs[activeKey] || {};
+  buildModalBody(existing);
+}
+
+function editExerciseName(i, variant, val) {
+  const routine = variant === 'A' ? customDumbbellA : customDumbbellB;
+  const oldName = routine[i].name;
+  routine[i].name = val;
+  if (activeWeights[oldName] !== undefined) { activeWeights[val] = activeWeights[oldName]; delete activeWeights[oldName]; }
+}
+
+function editExerciseSets(i, variant, val) {
+  const routine = variant === 'A' ? customDumbbellA : customDumbbellB;
+  routine[i].sets = val;
+}
+
+function getLastWeight(exerciseName, beforeKey) {
+  const keys = Object.keys(logs).sort();
+  for (let i = keys.length - 1; i >= 0; i--) {
+    if (keys[i] >= beforeKey) continue;
+    const l = logs[keys[i]];
+    if (l.weights && l.weights[exerciseName] !== undefined && l.weights[exerciseName] !== '') return l.weights[exerciseName];
+  }
+  return null;
+}
+
+function checkPlateau(exerciseName, currentKey, currentVal) {
+  if (!currentVal) return false;
+  const keys = Object.keys(logs).filter(k => k < currentKey).sort().reverse();
+  let count = 0;
+  for (const k of keys) {
+    const l = logs[k];
+    if (!l.weights || l.weights[exerciseName] === undefined) continue;
+    if (String(l.weights[exerciseName]) === String(currentVal)) count++;
+    else break;
+    if (count >= 4) return true;
+  }
+  return false;
+}
+
+function saveLog() {
+  const notes = document.getElementById('notes-input')?.value || '';
+  const date = keyToDate(activeKey);
+  const variant = activeType === 'dumbbell' ? getDumbbellVariant(date) : null;
+  const routine = variant === 'A' ? customDumbbellA : customDumbbellB;
+  const weights = {};
+  if (activeType === 'dumbbell') {
+    routine.forEach((ex, i) => { weights[ex.name] = activeWeights[ex.name] || ''; });
+  }
+  logs[activeKey] = {
+    type: activeType,
+    checks: [...activeChecks],
+    weights: activeType === 'dumbbell' ? weights : undefined,
+    notes,
+    grade: activeGrade,
+    flagged: activeFlagged,
+  };
+  const notice = document.getElementById('saved-notice');
+  notice.textContent = '✓ Session logged!';
+  setTimeout(() => { if(notice) notice.textContent = ''; }, 2000);
+  renderCalendar();
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  activeKey = null;
+}
+function handleOverlayClick(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATS / PROGRESS PAGE
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderStats() {
+  // Gather all exercise names from both variants
+  const allExercises = {};
+  [...customDumbbellA, ...customDumbbellB].forEach(ex => { allExercises[ex.name] = true; });
+
+  // Build weight history per exercise
+  const history = {};
+  Object.keys(allExercises).forEach(n => { history[n] = []; });
+  Object.keys(logs).sort().forEach(k => {
+    const l = logs[k];
+    if (l.weights) {
+      Object.keys(l.weights).forEach(name => {
+        if (l.weights[name] !== '' && l.weights[name] != null) {
+          if (!history[name]) history[name] = [];
+          history[name].push({ date: k, weight: parseFloat(l.weights[name]) });
+        }
+      });
+    }
+  });
+
+  let html = `<div style="padding:14px 0 8px;"><div class="msec-title" style="font-size:12px;letter-spacing:1px;color:var(--chalk2);">WEIGHT PROGRESSION</div></div>`;
+
+  const exerciseNames = Object.keys(history);
+  if (exerciseNames.length === 0 || exerciseNames.every(n => history[n].length === 0)) {
+    html += `<div class="no-data" style="padding:40px 0;">No weight data logged yet. Complete some dumbbell sessions to see your progress here.</div>`;
+  } else {
+    exerciseNames.forEach(name => {
+      const data = history[name];
+      if (data.length === 0) return;
+      const latest = data[data.length-1];
+      const canvasId = 'spark-' + name.replace(/\s+/g,'_');
+      html += `<div class="exercise-chart">
+        <div class="ec-header">
+          <div class="ec-name">${name}</div>
+          <div class="ec-latest">${latest.weight}kg</div>
+        </div>
+        <div class="sparkline-wrap">
+          <canvas id="${canvasId}" height="40"></canvas>
+        </div>
+      </div>`;
+    });
+  }
+
+  // Export / Import buttons
+  html += `<button class="export-btn" onclick="exportData()">⬇ Export Training Log (CSV)</button>`;
+  html += `<button class="export-btn" style="margin-top:8px;color:var(--chalk2);" onclick="triggerImport()">⬆ Import from CSV backup</button>`;
+  html += `<input type="file" id="csv-import-input" accept=".csv" style="display:none" onchange="handleImportFile(this)">`;
+
+  document.getElementById('stats-content').innerHTML = html;
+
+  // Draw sparklines
+  exerciseNames.forEach(name => {
+    const data = history[name];
+    if (data.length < 1) return;
+    const canvasId = 'spark-' + name.replace(/\s+/g,'_');
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    canvas.width = canvas.parentElement.offsetWidth;
+    drawSparkline(canvas, data.map(d => d.weight), getComputedStyle(document.documentElement).getPropertyValue('--dumbbell').trim());
+  });
+}
+
+function drawSparkline(canvas, values, color) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+  if (values.length < 2) {
+    // Single point
+    ctx.beginPath();
+    ctx.arc(w/2, h/2, 3, 0, Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    return;
+  }
+  const min = Math.min(...values) * 0.9;
+  const max = Math.max(...values) * 1.05;
+  const range = max - min || 1;
+  const pts = values.map((v, i) => ({
+    x: (i / (values.length-1)) * (w-8) + 4,
+    y: h - ((v - min) / range) * (h-8) - 4
+  }));
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0, color + '55');
+  grad.addColorStop(1, color + '00');
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, h);
+  pts.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(pts[pts.length-1].x, h);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+  // Line
+  ctx.beginPath();
+  pts.forEach((p,i) => i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+  // Last point dot
+  const last = pts[pts.length-1];
+  ctx.beginPath();
+  ctx.arc(last.x, last.y, 3.5, 0, Math.PI*2);
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MONTHLY SUMMARY
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderSummary() {
+  const daysInMonth = new Date(summaryYear, summaryMonth+1, 0).getDate();
+  const planned = {climb:0, dumbbell:0, yoga:0, hangboard:0};
+  const done = {climb:0, dumbbell:0, yoga:0, hangboard:0};
+  const gradeSessions = [];
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(summaryYear, summaryMonth, d);
+    const wt = getWorkoutType(date);
+    const k = dateKey(date);
+    if (wt === 'climb') { planned.climb++; if(isLogged(k)) done.climb++; if(logs[k]?.grade) gradeSessions.push({d, grade:logs[k].grade}); }
+    else if (wt === 'dumbbell') { planned.dumbbell++; if(isLogged(k)) done.dumbbell++; }
+    else if (wt === 'yoga_full') { planned.yoga++; if(isLogged(k)) done.yoga++; }
+    else if (wt === 'yoga_warmup') { planned.yoga++; planned.hangboard++; if(isLogged(k)){ const l=logs[k]; if(l.checks?.[0]) done.yoga++; if(l.checks?.[1]) done.hangboard++;} }
+  }
+
+  const types = [
+    {key:'climb',label:'Climbs',color:'var(--climb)'},
+    {key:'dumbbell',label:'Weights',color:'var(--dumbbell)'},
+    {key:'yoga',label:'Yoga',color:'var(--yoga)'},
+    {key:'hangboard',label:'Hangboard',color:'var(--hang)'},
+  ];
+
+  let html = `<div class="summary-month-nav">
+    <button class="nav-btn" onclick="prevSummaryMonth()">‹</button>
+    <h2>${MONTH_NAMES[summaryMonth]} ${summaryYear}</h2>
+    <button class="nav-btn" onclick="nextSummaryMonth()">›</button>
+  </div>
+  <div class="summary-grid">`;
+
+  types.forEach(t => {
+    const pct = planned[t.key] > 0 ? Math.round((done[t.key]/planned[t.key])*100) : 0;
+    html += `<div class="summary-card">
+      <div class="sc-label">${t.label}</div>
+      <div class="sc-nums">
+        <div class="sc-done" style="color:${t.color}">${done[t.key]}</div>
+        <div class="sc-total">/ ${planned[t.key]}</div>
+      </div>
+      <div class="sc-bar"><div class="sc-bar-fill" style="width:${pct}%;background:${t.color}"></div></div>
+    </div>`;
+  });
+
+  html += `</div>`;
+
+  // Grade sparkline
+  if (gradeSessions.length > 0) {
+    const vIdx = g => V_GRADES.indexOf(g);
+    const bestGrade = gradeSessions.reduce((best, s) => vIdx(s.grade) > vIdx(best) ? s.grade : best, gradeSessions[0].grade);
+    const canvasId = 'grade-spark-' + summaryMonth;
+    html += `<div class="grade-sparkline-wrap">
+      <div class="gs-header">
+        <div class="gs-title">🧗 Grade progression</div>
+        <div class="gs-best">Best: ${bestGrade}</div>
+      </div>
+      <div class="sparkline-wrap">
+        <canvas id="${canvasId}" height="48"></canvas>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;">
+        ${gradeSessions.map(s=>`<div style="font-size:9px;color:var(--chalk3);font-family:var(--font-mono);">${s.grade}</div>`).join('')}
+      </div>
+    </div>`;
+  } else {
+    html += `<div class="grade-sparkline-wrap">
+      <div class="gs-header"><div class="gs-title">🧗 Grade progression</div></div>
+      <div class="no-data">No grades logged this month yet.</div>
+    </div>`;
+  }
+
+  document.getElementById('summary-content').innerHTML = html;
+
+  if (gradeSessions.length > 0) {
+    setTimeout(() => {
+      const canvasId = 'grade-spark-' + summaryMonth;
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      canvas.width = canvas.parentElement.offsetWidth;
+      const vals = gradeSessions.map(s => V_GRADES.indexOf(s.grade));
+      drawSparkline(canvas, vals, getComputedStyle(document.documentElement).getPropertyValue('--climb').trim());
+    }, 50);
+  }
+}
+
+function prevSummaryMonth(){summaryMonth--;if(summaryMonth<0){summaryMonth=11;summaryYear--;}renderSummary();}
+function nextSummaryMonth(){summaryMonth++;if(summaryMonth>11){summaryMonth=0;summaryYear++;}renderSummary();}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FLAGS PAGE
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderFlags() {
+  const flagged = Object.keys(logs).filter(k => logs[k].flagged).sort().reverse();
+  let html = `<div style="padding:14px 0 8px;"><div class="msec-title" style="font-size:12px;letter-spacing:1px;color:var(--chalk2);">FLAGGED SESSIONS</div></div>`;
+  if (flagged.length === 0) {
+    html += `<div class="no-flags">🏔️ No flagged sessions yet.<br>Tap the flag button in any session log to mark a niggle or injury.</div>`;
+  } else {
+    flagged.forEach(k => {
+      const l = logs[k];
+      const date = keyToDate(k);
+      const w = WORKOUTS[l.type] || WORKOUTS['rest'];
+      html += `<div class="flag-item" onclick="openDay('${k}')">
+        <div class="fi-date">${DAY_NAMES[date.getDay()]}, ${date.getDate()} ${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}</div>
+        <div class="fi-type c-${(l.type==='yoga_full'||l.type==='yoga_warmup')?'yoga':l.type}">${w.emoji} ${w.label}</div>
+        ${l.notes ? `<div class="fi-notes">"${l.notes.slice(0,120)}${l.notes.length>120?'…':''}"</div>` : '<div class="fi-notes" style="opacity:0.4;">No notes added</div>'}
+      </div>`;
+    });
+  }
+  document.getElementById('flags-content').innerHTML = html;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXPORT
+// ─────────────────────────────────────────────────────────────────────────────
+
+function exportData() {
+  const rows = [['Date','Day','Workout','Completed','Grade','Notes','Flagged','Weights']];
+  Object.keys(logs).sort().forEach(k => {
+    const l = logs[k];
+    const date = keyToDate(k);
+    const w = WORKOUTS[l.type] || {};
+    const completed = l.checks?.some(Boolean) ? 'Yes' : 'No';
+    const weightsStr = l.weights ? Object.entries(l.weights).filter(([,v])=>v).map(([n,v])=>`${n}:${v}kg`).join('; ') : '';
+    rows.push([k, DAY_NAMES[date.getDay()], w.label||l.type, completed, l.grade||'', (l.notes||'').replace(/"/g,'""'), l.flagged?'Yes':'No', weightsStr]);
+  });
+  const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'sendit-training-log.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IMPORT
+// ─────────────────────────────────────────────────────────────────────────────
+
+function triggerImport() {
+  document.getElementById('csv-import-input').value = '';
+  document.getElementById('csv-import-input').click();
+}
+
+function handleImportFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const parsed = parseImportCSV(e.target.result);
+      if (parsed.length === 0) { showImportResult('error', 'No valid log entries found in this file. Make sure you\'re using a CSV exported from SendIt.'); return; }
+      previewImport(parsed);
+    } catch(err) {
+      showImportResult('error', 'Could not read this file. Make sure it\'s a CSV exported from SendIt.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function parseImportCSV(csvText) {
+  const lines = csvText.trim().split('\n');
+  if (lines.length < 2) return [];
+  // Skip header row
+  const entries = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCSVRow(lines[i]);
+    if (cols.length < 7) continue;
+    const [dateStr, , workoutLabel, completed, grade, notes, flagged, weightsStr] = cols;
+    if (!dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) continue;
+    // Reconstruct type from workout label
+    const type = labelToType(workoutLabel);
+    // Parse weights string back to object: "exercise:Xkg; ..."
+    const weights = {};
+    if (weightsStr) {
+      weightsStr.split(';').forEach(part => {
+        const m = part.trim().match(/^(.+):([0-9.]+)kg$/);
+        if (m) weights[m[1].trim()] = m[2];
+      });
+    }
+    entries.push({
+      key: dateStr,
+      type,
+      checks: [completed === 'Yes'],
+      weights: Object.keys(weights).length > 0 ? weights : undefined,
+      notes: notes || '',
+      grade: grade || null,
+      flagged: flagged === 'Yes',
+    });
+  }
+  return entries;
+}
+
+function parseCSVRow(row) {
+  // Handle quoted fields with commas inside
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < row.length; i++) {
+    const ch = row[i];
+    if (ch === '"') {
+      if (inQuotes && row[i+1] === '"') { current += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      result.push(current); current = '';
+    } else {
+      current += ch;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+function labelToType(label) {
+  const map = { 'Climbing':'climb', 'Dumbbells':'dumbbell', 'Hangboard':'hangboard', 'Yoga':'yoga_full', 'Yoga + Hangboard':'yoga_warmup', 'Rest Day':'rest' };
+  return map[label] || 'rest';
+}
+
+function previewImport(entries) {
+  const existingCount = Object.keys(logs).length;
+  const importCount = entries.length;
+  const conflicts = entries.filter(e => logs[e.key]).length;
+  const newEntries = importCount - conflicts;
+
+  const body = document.getElementById('import-modal-body');
+  body.innerHTML = `
+    <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;">
+      <div style="font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--chalk2);letter-spacing:0.5px;margin-bottom:10px;text-transform:uppercase;">Import Preview</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;">
+          <span style="color:var(--chalk2);font-style:italic;">Entries in CSV</span>
+          <span style="font-family:var(--font-mono);color:var(--chalk);">${importCount}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;">
+          <span style="color:var(--chalk2);font-style:italic;">Already in app</span>
+          <span style="font-family:var(--font-mono);color:var(--chalk);">${existingCount}</span>
+        </div>
+        <div style="height:1px;background:var(--border);margin:2px 0;"></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;">
+          <span style="color:var(--chalk2);font-style:italic;">New entries to add</span>
+          <span style="font-family:var(--font-mono);color:var(--climb);">${newEntries}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;">
+          <span style="color:var(--chalk2);font-style:italic;">Conflicts (same date)</span>
+          <span style="font-family:var(--font-mono);color:${conflicts>0?'var(--accent)':'var(--chalk3)'};">${conflicts}</span>
+        </div>
+      </div>
+    </div>
+    ${conflicts > 0 ? `<div style="font-size:12px;color:var(--chalk2);font-style:italic;line-height:1.6;margin-bottom:14px;padding:10px 12px;background:var(--accent-dim);border-radius:8px;border-left:3px solid var(--accent);">
+      For the ${conflicts} date${conflicts>1?'s':''} that exist in both your app and the CSV, the <strong style="color:var(--chalk);font-style:normal;">CSV version will take priority</strong>. Your current app data for those dates will be overwritten.
+    </div>` : ''}
+    <button onclick="confirmImport(${JSON.stringify(entries).replace(/</g,'&lt;')})" style="width:100%;background:var(--accent);color:white;border:none;border-radius:var(--radius);padding:13px;font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:1px;cursor:pointer;margin-bottom:8px;">Merge & Import</button>
+    <button onclick="closeImportModal()" style="width:100%;background:var(--surface2);color:var(--chalk2);border:1px solid var(--border);border-radius:var(--radius);padding:11px;font-family:var(--font-display);font-size:15px;cursor:pointer;">Cancel</button>
+  `;
+  document.getElementById('import-overlay').classList.add('open');
+}
+
+function confirmImport(entries) {
+  let added = 0, merged = 0;
+  entries.forEach(entry => {
+    if (logs[entry.key]) merged++;
+    else added++;
+    // CSV wins on conflicts
+    logs[entry.key] = entry;
+  });
+  saveToStorage();
+  renderCalendar();
+  showImportResult('success', `Done! ${added} new entr${added===1?'y':'ies'} added, ${merged} entr${merged===1?'y':'ies'} updated from CSV.`);
+}
+
+function showImportResult(type, message) {
+  const body = document.getElementById('import-modal-body');
+  const isSuccess = type === 'success';
+  body.innerHTML = `
+    <div style="text-align:center;padding:20px 0;">
+      <div style="font-size:48px;margin-bottom:14px;">${isSuccess ? '✅' : '⚠️'}</div>
+      <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:8px;color:${isSuccess?'var(--climb)':'var(--accent)'};">${isSuccess ? 'Import complete' : 'Import failed'}</div>
+      <div style="font-size:13px;color:var(--chalk2);font-style:italic;line-height:1.6;margin-bottom:20px;">${message}</div>
+      <button onclick="closeImportModal()" style="background:var(--surface2);color:var(--chalk);border:1px solid var(--border);border-radius:var(--radius);padding:10px 24px;font-family:var(--font-display);font-size:15px;cursor:pointer;">Close</button>
+    </div>
+  `;
+  if (!document.getElementById('import-overlay').classList.contains('open')) {
+    document.getElementById('import-overlay').classList.add('open');
+  }
+}
+
+function closeImportModal() {
+  document.getElementById('import-overlay').classList.remove('open');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LOCALSTORAGE PERSISTENCE
+// ─────────────────────────────────────────────────────────────────────────────
+
+const LS_LOGS = 'sendit_logs';
+const LS_ROUTINE_A = 'sendit_routine_a';
+const LS_ROUTINE_B = 'sendit_routine_b';
+const LS_LAST_EXPORT = 'sendit_last_export';
+const LS_EXPORT_DISMISSED = 'sendit_export_dismissed';
+
+function saveToStorage() {
+  try {
+    localStorage.setItem(LS_LOGS, JSON.stringify(logs));
+    localStorage.setItem(LS_ROUTINE_A, JSON.stringify(customDumbbellA));
+    localStorage.setItem(LS_ROUTINE_B, JSON.stringify(customDumbbellB));
+  } catch(e) {
+    console.warn('localStorage save failed:', e);
+  }
+}
+
+function loadFromStorage() {
+  try {
+    const savedLogs = localStorage.getItem(LS_LOGS);
+    if (savedLogs) Object.assign(logs, JSON.parse(savedLogs));
+    const savedA = localStorage.getItem(LS_ROUTINE_A);
+    if (savedA) customDumbbellA = JSON.parse(savedA);
+    const savedB = localStorage.getItem(LS_ROUTINE_B);
+    if (savedB) customDumbbellB = JSON.parse(savedB);
+  } catch(e) {
+    console.warn('localStorage load failed:', e);
+  }
+}
+
+// Patch saveLog to also persist
+const _origSaveLog = saveLog;
+saveLog = function() {
+  _origSaveLog();
+  saveToStorage();
+};
+
+// Patch exportData to record last export date
+const _origExport = exportData;
+exportData = function() {
+  _origExport();
+  try {
+    localStorage.setItem(LS_LAST_EXPORT, dateKey(today));
+    localStorage.removeItem(LS_EXPORT_DISMISSED);
+  } catch(e) {}
+  hideExportReminder();
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXPORT REMINDER
+// ─────────────────────────────────────────────────────────────────────────────
+
+function checkExportReminder() {
+  try {
+    // Only show if there are logs
+    if (Object.keys(logs).length === 0) return;
+
+    const dismissed = localStorage.getItem(LS_EXPORT_DISMISSED);
+    if (dismissed === dateKey(today)) return; // already dismissed today
+
+    const lastExport = localStorage.getItem(LS_LAST_EXPORT);
+    if (!lastExport) {
+      // Never exported — show after 7+ days of use
+      const allKeys = Object.keys(logs).sort();
+      if (allKeys.length < 7) return;
+      const firstLog = new Date(allKeys[0] + 'T12:00:00');
+      const daysSinceFirst = Math.floor((today - firstLog) / 86400000);
+      if (daysSinceFirst < 7) return;
+    } else {
+      // Exported before — remind after 30 days
+      const lastDate = new Date(lastExport + 'T12:00:00');
+      const daysSince = Math.floor((today - lastDate) / 86400000);
+      if (daysSince < 30) return;
+    }
+
+    showExportReminder(lastExport);
+  } catch(e) {}
+}
+
+function showExportReminder(lastExport) {
+  const msg = lastExport
+    ? `Your last CSV export was over 30 days ago. Export now to keep a safe backup of your training log.`
+    : `You've been logging for a while — great work! Consider exporting a CSV backup so your data is safe if browser storage is ever cleared.`;
+
+  const banner = document.createElement('div');
+  banner.id = 'export-reminder';
+  banner.style.cssText = `
+    position:fixed;bottom:60px;left:50%;transform:translateX(-50%);
+    width:calc(100% - 32px);max-width:448px;
+    background:#1c2d1e;border:1px solid var(--climb);border-radius:var(--radius);
+    padding:12px 14px;z-index:150;
+    display:flex;align-items:flex-start;gap:10px;
+    box-shadow:0 4px 24px rgba(0,0,0,0.5);
+    animation:slideUp 0.3s cubic-bezier(0.34,1.4,0.64,1);
+  `;
+  banner.innerHTML = `
+    <style>@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}</style>
+    <div style="font-size:18px;flex-shrink:0;">💾</div>
+    <div style="flex:1;">
+      <div style="font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--climb);letter-spacing:0.3px;margin-bottom:3px;">BACKUP REMINDER</div>
+      <div style="font-size:12px;color:var(--chalk2);font-style:italic;line-height:1.5;">${msg}</div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button onclick="exportData()" style="background:var(--climb);color:#111;border:none;border-radius:8px;padding:6px 14px;font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.3px;">Export now</button>
+        <button onclick="dismissExportReminder()" style="background:var(--surface2);color:var(--chalk2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:var(--font-display);font-size:13px;cursor:pointer;">Later</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(banner);
+}
+
+function hideExportReminder() {
+  const el = document.getElementById('export-reminder');
+  if (el) el.remove();
+}
+
+function dismissExportReminder() {
+  try { localStorage.setItem(LS_EXPORT_DISMISSED, dateKey(today)); } catch(e) {}
+  hideExportReminder();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+loadFromStorage();
+renderCalendar();
+setCalView('month');
+setTimeout(checkExportReminder, 1500);
+</script>
+</body>
+</html>

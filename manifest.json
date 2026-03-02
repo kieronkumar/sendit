@@ -1,0 +1,21 @@
+{
+  "name": "SendIt — Boulder Training Log",
+  "short_name": "SendIt",
+  "description": "Track your bouldering training, strength and flexibility sessions",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#111418",
+  "theme_color": "#111418",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
